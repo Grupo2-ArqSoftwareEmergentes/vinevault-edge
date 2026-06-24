@@ -1,0 +1,1 @@
+"""Provisioning REST resources package."""
