@@ -23,6 +23,7 @@ from iam.application.device_presence_monitor import DevicePresenceMonitor
 from iam.infrastructure.kafka.iam_kafka_topics import IamKafkaTopics
 from iam.interfaces.services import iam_api
 from provisioning.application.kafka_provisioning_consumer import KafkaProvisioningConsumer
+from provisioning.application.device_core_sync_fallback_monitor import DeviceCoreSyncFallbackMonitor
 from provisioning.infrastructure.kafka.provisioning_kafka_topics import ProvisioningKafkaTopics
 from shared.infrastructure.database import init_db
 from shared.infrastructure.environment import (
@@ -45,6 +46,7 @@ _outbox_processor = TelemetryOutboxProcessor()
 _command_consumer = KafkaCommandConsumer()
 _device_presence_monitor = DevicePresenceMonitor()
 _provisioning_consumer = KafkaProvisioningConsumer()
+_device_core_sync_fallback_monitor = DeviceCoreSyncFallbackMonitor()
 _alert_incident_consumer = KafkaAlertIncidentConsumer()
 
 
@@ -95,6 +97,7 @@ def initialize():
         _outbox_processor.start()
         _command_consumer.start()
         _provisioning_consumer.start()
+        _device_core_sync_fallback_monitor.start()
         _device_presence_monitor.start()
         _alert_incident_consumer.start()
         _initialized = True

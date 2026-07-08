@@ -1,8 +1,8 @@
 """KafkaProvisioningConsumer — background consumer for Core -> Edge device provisioning.
 
 Listens on the configured provisioning topic and updates the local
-SQLite device cache in real time.  Replaces both the HTTP startup sync
-and the HTTP webhook receiver.
+SQLite device cache in real time. Kafka remains the primary sync path
+while the HTTP fallback only runs when the cache stays empty.
 """
 
 import json

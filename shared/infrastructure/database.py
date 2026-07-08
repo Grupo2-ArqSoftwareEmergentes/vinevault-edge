@@ -40,6 +40,34 @@ def _migrate_remove_device_secret():
         db.execute_sql("DROP TABLE IF EXISTS devices")
 
 
+def _migrate_device_schema():
+    """Add new device cache columns when the local schema is older."""
+    cursor = db.execute_sql(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='devices'"
+    )
+    if not cursor.fetchone():
+        return
+
+    col_cursor = db.execute_sql("PRAGMA table_info(devices)")
+    columns = {row[1] for row in col_cursor.fetchall()}
+    additions = [
+        ("serial_number", "TEXT"),
+        ("name", "TEXT"),
+        ("factory_name", "TEXT"),
+        ("device_type", "TEXT"),
+        ("assigned", "INTEGER DEFAULT 0"),
+        ("space_id", "TEXT"),
+        ("owner_user_id", "TEXT"),
+        ("configuration", "TEXT"),
+        ("activated_at", "DATETIME"),
+    ]
+
+    for column_name, column_sql in additions:
+        if column_name in columns:
+            continue
+        db.execute_sql(f"ALTER TABLE devices ADD COLUMN {column_name} {column_sql}")
+
+
 def _migrate_telemetry_schema():
     """Recreate device_telemetry table if it still uses the legacy full schema.
 
@@ -107,6 +135,7 @@ def init_db():
         from alerting.infrastructure.models import AlertIncidentEventModel
 
         _migrate_remove_device_secret()
+        _migrate_device_schema()
         _migrate_telemetry_schema()
         _migrate_outbox_schema()
         db.create_tables(

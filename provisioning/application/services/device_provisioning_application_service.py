@@ -1,7 +1,8 @@
 """Application service for provisioning the local device cache via Kafka.
 
-Coordinates device cache updates driven entirely by Kafka events from
-the core system.  No HTTP communication remains in this bounded context.
+Coordinates device cache updates driven by Kafka events from the core
+system. The HTTP fallback lives in a separate monitor and only kicks in
+when the cache remains empty after startup.
 """
 
 from provisioning.domain.services.device_cache_service import DeviceCacheService

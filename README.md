@@ -135,6 +135,14 @@ El edge no crea devices de prueba. Recibe los devices maestros desde el sistema 
 
 La sincronizacion es reactiva via Kafka: el core publica cambios y el edge los consume en tiempo real.
 
+Si Kafka no logra poblar la cachÃ© local, el edge activa un fallback HTTP contra `GET /api/v1/edges/devices` usando solo su propia API key de edge:
+
+```bash
+Authorization: Bearer <edge-api-key>
+```
+
+Ese fallback pagina con `page` y `size` y solo corre mientras la tabla local siga vacÃ­a.
+
 Variables relevantes:
 
 | Variable | Default | Descripción |
@@ -142,6 +150,11 @@ Variables relevantes:
 | `EDGE_DATABASE_PATH` | `vinevault_edge.db` | Ruta del SQLite local del edge |
 | `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | Broker Kafka para comunicacion edge <-> core |
 | `EDGE_PUBLIC_BASE_URL` | `http://127.0.0.1:5000` | Base URL para el OpenAPI `servers` (docs) |
+| `CORE_BASE_URL` | `http://localhost:8000` | Base URL del core para el fallback HTTP |
+| `EDGE_CORE_API_KEY` | _(vacÃ­o)_ | API key del edge para autenticarse contra el core |
+| `EDGE_CORE_DEVICES_PAGE_SIZE` | `50` | TamaÃ±o de pÃ¡gina para el fallback HTTP, mÃ¡ximo `500` |
+| `EDGE_CORE_DEVICES_SYNC_GRACE_SECONDS` | `15` | Espera antes de activar el fallback si la cachÃ© sigue vacÃ­a |
+| `EDGE_CORE_DEVICES_SYNC_RETRY_SECONDS` | `30` | Intervalo de reintento mientras la cachÃ© siga vacÃ­a |
 
 Este proyecto soporta archivo `.env` (cargado al iniciar via `python-dotenv`). Usa `.env.example` como base.
 
