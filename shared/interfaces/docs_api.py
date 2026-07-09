@@ -259,7 +259,7 @@ OPENAPI_SPEC = {
             "get": {
                 "tags": ["Alerting"],
                 "summary": "Get pending alert incident events",
-                "description": "Authenticates the embedded device and returns locally cached alert incident events received from the core system, marking them as delivered.",
+                "description": "Authenticates the embedded device and returns locally cached alert incident events received from the core system, marking them as delivered. Both ACTIVE and RESOLVED transitions can be returned so the embedded device can open or close the local alarm.",
                 "security": [{"DeviceCredentials": [], "DeviceApiKey": []}],
                 "responses": {
                     "200": {

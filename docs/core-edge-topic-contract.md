@@ -6,7 +6,7 @@ Este documento resume lo que el `edge` espera recibir y enviar por Kafka para qu
 
 | Topic | Dirección | Qué espera el edge | Campos obligatorios | Campos recomendados | Key Kafka sugerida |
 |---|---|---|---|---|---|
-| `vinevault.device.alert.incident.changed` | Core -> Edge | El edge lo consume para guardar incidentes de alerta y exponerlos luego al device local. `ACTIVE` abre o mantiene la alarma local; `RESOLVED` la cierra. | `alert_id`, `device_id`, `hardware_id`, `metric`, `threshold_metric`, `threshold_value`, `actual_value`, `status`, `occurred_at` | `space_id`, `message`, `resolved_at` | `hardware_id` |
+| `vinevault.device.alert.incident.changed` | Core -> Edge | El edge lo consume para guardar incidentes de alerta y exponerlos luego al device local. `ACTIVE` abre o mantiene la alarma local; `RESOLVED` la cierra y vuelve a quedar visible para el embedded en el siguiente pull. | `alert_id`, `device_id`, `hardware_id`, `metric`, `threshold_metric`, `threshold_value`, `actual_value`, `status`, `occurred_at` | `space_id`, `message`, `resolved_at` | `hardware_id` |
 | `vinevault.provisioning.devices.changed` | Core -> Edge | El edge lo consume para sincronizar su caché local de devices. | `device_id`, `hardware_id`, `api_key`, `status` | `change_type`, `changed_at` | `hardware_id` o `device_id` |
 | `vinevault.device.commands.pending` | Core -> Edge | El edge lo consume para recibir comandos pendientes para un device. | `command_id`, `device_id`, `type` | `hardware_id`, `payload`, `issued_at` | `hardware_id` o `device_id` |
 
@@ -23,6 +23,7 @@ Este documento resume lo que el `edge` espera recibir y enviar por Kafka para qu
 
 - El edge acepta algunos payloads en `snake_case` y también en `camelCase`, especialmente en provisioning e incidents.
 - En `vinevault.device.alert.incident.changed`, `status` debe ser `ACTIVE` o `RESOLVED`.
+- Cuando un incidente cambia de estado, el edge vuelve a ponerlo disponible para el embedded en `/api/v1/alerting/incidents/pending`.
 - En `vinevault.device.alert.incident.changed`, `threshold_metric` identifica la regla que disparó el incidente, por ejemplo `temperature_max` o `humidity_min`.
 - En `vinevault.provisioning.devices.changed`, el edge valida que existan al menos `device_id`, `hardware_id`, `api_key` y `status`.
 - En `vinevault.device.commands.pending`, el edge resuelve el comando por `device_id` y luego lo asocia con `hardware_id`.

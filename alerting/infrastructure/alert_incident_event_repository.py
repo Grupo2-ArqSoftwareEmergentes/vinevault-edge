@@ -52,6 +52,7 @@ class AlertIncidentEventRepository:
                 acknowledged_at=None,
             )
 
+        previous_status = existing.status
         existing.device_id = str(payload.get("device_id") or payload.get("deviceId"))
         existing.space_id = str(payload.get("space_id") or payload.get("spaceId")) if (payload.get("space_id") or payload.get("spaceId")) else None
         existing.metric = str(payload.get("metric"))
@@ -72,6 +73,11 @@ class AlertIncidentEventRepository:
         else:
             existing.resolved_at = None
 
+        # Any status transition should become visible to the embedded device again.
+        # That lets ACTIVE -> RESOLVED and RESOLVED -> ACTIVE both re-enter the pull queue.
+        if previous_status != existing.status:
+            existing.delivered_at = None
+
         existing.save()
         return existing
 
@@ -91,7 +97,7 @@ class AlertIncidentEventRepository:
             AlertIncidentEventModel.select()
             .where(
                 (AlertIncidentEventModel.hardware_id == hardware_id)
-                & (AlertIncidentEventModel.status == "ACTIVE")
+                & (AlertIncidentEventModel.status.in_(["ACTIVE", "RESOLVED"]))
                 & (AlertIncidentEventModel.delivered_at.is_null(True))
             )
             .order_by(AlertIncidentEventModel.received_at.asc())
