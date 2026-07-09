@@ -1,7 +1,7 @@
 """TelemetryRecordedIntegrationEvent - outbound ACL DTO for device telemetry.
 
 Published by the Device bounded context to Kafka topic
-`clair.device.telemetry.recorded` for consumption by the core system.
+`vinevault.device.telemetry.recorded` for consumption by the core system.
 """
 
 from dataclasses import dataclass

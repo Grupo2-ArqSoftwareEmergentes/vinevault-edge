@@ -27,6 +27,7 @@ class AlertIncidentEventModel(Model):
     device_id = CharField(index=True)
     space_id = CharField(null=True)
     metric = CharField()
+    threshold_metric = CharField(null=True)
     status = CharField(index=True)
     message = CharField(null=True)
     threshold_value = CharField(null=True)

@@ -1,7 +1,7 @@
 """DevicesSyncRequestedIntegrationEvent — outbound ACL DTO for sync requests.
 
 Published by the Provisioning bounded context to Kafka topic
-`clair.provisioning.devices.sync.requested` for consumption by the core system.
+`vinevault.provisioning.devices.sync.requested` for consumption by the core system.
 """
 
 from dataclasses import dataclass

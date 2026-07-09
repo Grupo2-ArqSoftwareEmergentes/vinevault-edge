@@ -18,7 +18,7 @@ class ProvisioningKafkaTopics:
     )
 
     DEVICES_SYNC_REQUESTED = KafkaTopicConfig(
-        name="clair.provisioning.devices.sync.requested",
+        name="vinevault.provisioning.devices.sync.requested",
         num_partitions=1,
         replication_factor=1,
         retention_ms=86400000,  # 1 day

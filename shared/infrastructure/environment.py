@@ -59,6 +59,12 @@ def get_edge_core_devices_sync_retry_seconds() -> int:
     return _clamp_int(raw, 30, 5, 3600)
 
 
+def get_edge_core_http_timeout_seconds() -> int:
+    """Return the HTTP timeout used for edge -> core requests."""
+    raw = os.getenv("EDGE_CORE_HTTP_TIMEOUT_SECONDS", "15").strip()
+    return _clamp_int(raw, 15, 1, 300)
+
+
 def get_edge_cors_allowed_origins() -> list[str]:
     """Return allowed CORS origins.
 

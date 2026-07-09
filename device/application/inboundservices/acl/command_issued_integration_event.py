@@ -1,7 +1,7 @@
 """DeviceCommandIssuedIntegrationEvent - inbound ACL DTO for pending commands.
 
 Consumed by the Device bounded context from Kafka topic
-`clair.device.commands.pending` published by the core system.
+`vinevault.device.commands.pending` published by the core system.
 """
 
 from dataclasses import dataclass

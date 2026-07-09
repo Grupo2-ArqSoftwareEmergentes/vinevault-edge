@@ -1,7 +1,7 @@
 """KafkaCommandConsumer - background consumer for Core -> Edge device commands.
 
 Replaces the HTTP polling loop with a persistent Kafka consumer that listens
-on `clair.device.commands.pending` and caches commands locally for embedded
+on `vinevault.device.commands.pending` and caches commands locally for embedded
 device delivery.
 """
 

@@ -6,6 +6,7 @@ keeping domain and application layers decoupled from messaging infrastructure.
 
 import logging
 
+from shared.infrastructure.core_edge_http_client import CoreEdgeHttpClient
 from iam.infrastructure.kafka.iam_kafka_topics import IamKafkaTopics
 from shared.infrastructure.kafka_client import KafkaInfrastructureClient
 
@@ -17,6 +18,7 @@ class KafkaPresencePublisher:
 
     def __init__(self, kafka_client: KafkaInfrastructureClient | None = None) -> None:
         self._kafka_client = kafka_client or KafkaInfrastructureClient()
+        self._core_http_client = CoreEdgeHttpClient()
         self._producer = None
 
     def _get_producer(self):
@@ -35,8 +37,14 @@ class KafkaPresencePublisher:
         """
         producer = self._get_producer()
         if producer is None:
-            logger.warning("Kafka producer unavailable; presence event skipped")
-            return False
+            logger.warning("Kafka producer unavailable; trying HTTP presence fallback")
+            http_payload = {
+                "device_id": payload.get("device_id"),
+                "hardware_id": payload.get("hardware_id"),
+                "status": payload.get("status"),
+                "occurred_at": payload.get("occurred_at"),
+            }
+            return self._core_http_client.publish_presence(http_payload)
 
         try:
             hardware_id = payload.get("hardware_id", "unknown")
@@ -48,8 +56,21 @@ class KafkaPresencePublisher:
             return True
         except Exception as exc:
             logger.warning("Failed to publish presence event to Kafka: %s", exc)
+            http_payload = self._build_http_payload(payload)
+            if self._core_http_client.publish_presence(http_payload):
+                logger.info("Presence event delivered to core over HTTP fallback")
+                return True
             return False
 
     def close(self) -> None:
         if self._producer:
             self._producer.flush()
+
+    @staticmethod
+    def _build_http_payload(payload: dict) -> dict:
+        return {
+            "device_id": payload.get("device_id"),
+            "hardware_id": payload.get("hardware_id"),
+            "status": payload.get("status"),
+            "occurred_at": payload.get("occurred_at"),
+        }

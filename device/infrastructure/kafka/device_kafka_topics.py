@@ -11,21 +11,21 @@ class DeviceKafkaTopics:
     """Topics produced or consumed by the Device bounded context."""
 
     TELEMETRY_RECORDED = KafkaTopicConfig(
-        name="clair.device.telemetry.recorded",
+        name="vinevault.device.telemetry.recorded",
         num_partitions=3,
         replication_factor=1,
         retention_ms=604800000,
     )
 
     COMMANDS_ACKNOWLEDGED = KafkaTopicConfig(
-        name="clair.device.commands.acknowledged",
+        name="vinevault.device.commands.acknowledged",
         num_partitions=1,
         replication_factor=1,
         retention_ms=604800000,
     )
 
     COMMANDS_PENDING = KafkaTopicConfig(
-        name="clair.device.commands.pending",
+        name="vinevault.device.commands.pending",
         num_partitions=3,
         replication_factor=1,
         retention_ms=604800000,

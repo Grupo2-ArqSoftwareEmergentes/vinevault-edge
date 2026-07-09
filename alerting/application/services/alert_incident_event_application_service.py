@@ -34,7 +34,7 @@ class AlertIncidentEventApplicationService:
         normalized = self._normalize_payload(payload)
 
         with db.atomic():
-            model = self._repository.create_from_integration_payload(
+            model = self._repository.create_or_update_from_integration_payload(
                 normalized,
                 received_at=datetime.now(timezone.utc),
             )
@@ -62,21 +62,48 @@ class AlertIncidentEventApplicationService:
         if not hardware_id:
             raise ValueError("Missing hardware_id")
 
+        alert_id = payload.get("alert_id") or payload.get("alertId")
+        if not alert_id:
+            raise ValueError("Missing alert_id")
+
+        device_id = payload.get("device_id") or payload.get("deviceId")
+        if not device_id:
+            raise ValueError("Missing device_id")
+
         occurred_at = payload.get("occurred_at") or payload.get("occurredAt")
         resolved_at = payload.get("resolved_at") or payload.get("resolvedAt")
         if not occurred_at:
             raise ValueError("Missing occurred_at")
 
+        status = str(payload.get("status") or "").strip().upper()
+        if status not in {"ACTIVE", "RESOLVED"}:
+            raise ValueError("status must be ACTIVE or RESOLVED")
+
+        threshold_metric = payload.get("threshold_metric") or payload.get("thresholdMetric")
+        if not threshold_metric:
+            raise ValueError("Missing threshold_metric")
+
+        metric = payload.get("metric")
+        if not metric:
+            raise ValueError("Missing metric")
+
+        if payload.get("threshold_value") is None:
+            raise ValueError("Missing threshold_value")
+
+        if payload.get("actual_value") is None:
+            raise ValueError("Missing actual_value")
+
         return {
-            "alert_id": payload.get("alert_id") or payload.get("alertId"),
-            "device_id": payload.get("device_id") or payload.get("deviceId"),
+            "alert_id": alert_id,
+            "device_id": device_id,
             "hardware_id": hardware_id,
             "space_id": payload.get("space_id") or payload.get("spaceId"),
-            "metric": payload.get("metric"),
-            "threshold_value": payload.get("threshold_value") or payload.get("thresholdValue"),
-            "actual_value": payload.get("actual_value") or payload.get("actualValue"),
+            "metric": metric,
+            "threshold_metric": threshold_metric,
+            "threshold_value": payload.get("threshold_value") if payload.get("threshold_value") is not None else payload.get("thresholdValue"),
+            "actual_value": payload.get("actual_value") if payload.get("actual_value") is not None else payload.get("actualValue"),
             "message": payload.get("message"),
-            "status": payload.get("status"),
+            "status": status,
             "occurred_at": AlertIncidentEventApplicationService._parse_timestamp(occurred_at),
             "resolved_at": AlertIncidentEventApplicationService._parse_timestamp(resolved_at)
             if resolved_at
@@ -92,7 +119,15 @@ class AlertIncidentEventApplicationService:
     def _to_dict(model) -> dict:
         return {
             "id": model.id,
+            "alert_id": model.alert_id,
+            "device_id": model.device_id,
+            "hardware_id": model.hardware_id,
+            "space_id": model.space_id,
             "metric": model.metric,
+            "threshold_metric": model.threshold_metric,
+            "threshold_value": model.threshold_value,
+            "actual_value": model.actual_value,
+            "message": model.message,
             "status": model.status,
             "occurred_at": model.occurred_at.isoformat(),
             "resolved_at": model.resolved_at.isoformat() if model.resolved_at else None,

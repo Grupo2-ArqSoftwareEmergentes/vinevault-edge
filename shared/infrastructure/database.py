@@ -120,6 +120,26 @@ def _migrate_outbox_schema():
         db.execute_sql("DROP TABLE IF EXISTS device_outbox")
 
 
+def _migrate_alerting_schema():
+    """Add alerting columns when the local schema predates the incident contract."""
+    cursor = db.execute_sql(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='alert_incident_events'"
+    )
+    if not cursor.fetchone():
+        return
+
+    col_cursor = db.execute_sql("PRAGMA table_info(alert_incident_events)")
+    columns = {row[1] for row in col_cursor.fetchall()}
+    additions = [
+        ("threshold_metric", "TEXT"),
+    ]
+
+    for column_name, column_sql in additions:
+        if column_name in columns:
+            continue
+        db.execute_sql(f"ALTER TABLE alert_incident_events ADD COLUMN {column_name} {column_sql}")
+
+
 def init_db():
     """Initialize the database by creating all tables if they don't exist.
 
@@ -138,6 +158,7 @@ def init_db():
         _migrate_device_schema()
         _migrate_telemetry_schema()
         _migrate_outbox_schema()
+        _migrate_alerting_schema()
         db.create_tables(
             [
                 DeviceModel,

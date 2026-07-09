@@ -7,7 +7,7 @@ class AlertingKafkaTopics:
     """Topics produced or consumed by the Alerting bounded context."""
 
     ALERT_INCIDENT_CHANGED = KafkaTopicConfig(
-        name="clair.device.alert.incident.changed",
+        name="vinevault.device.alert.incident.changed",
         num_partitions=3,
         replication_factor=1,
         retention_ms=604_800_000,

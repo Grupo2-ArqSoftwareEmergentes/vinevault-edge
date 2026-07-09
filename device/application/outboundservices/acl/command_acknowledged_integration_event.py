@@ -1,7 +1,7 @@
 """DeviceCommandAcknowledgedIntegrationEvent - outbound ACL DTO for command ACKs.
 
 Published by the Device bounded context to Kafka topic
-`clair.device.commands.acknowledged` for consumption by the core system.
+`vinevault.device.commands.acknowledged` for consumption by the core system.
 """
 
 from dataclasses import dataclass

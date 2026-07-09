@@ -11,7 +11,7 @@ class IamKafkaTopics:
     """Topics produced or consumed by the IAM bounded context."""
 
     DEVICE_PRESENCE_CHANGED = KafkaTopicConfig(
-        name="clair.device.presence.changed",
+        name="vinevault.device.presence.changed",
         num_partitions=1,
         replication_factor=1,
         retention_ms=259200000,  # 3 days
